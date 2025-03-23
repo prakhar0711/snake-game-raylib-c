@@ -54,7 +54,7 @@ int main() {
   return 0;
 }
 
-// handle snake initialization
+// handle snake game initialization
 void InitGame() {
   snake.length = 3;
   snake.direction = (Position){1, 0};
@@ -97,14 +97,6 @@ void UpdateGame() {
   snake.body[0].x += snake.direction.x;
   snake.body[0].y += snake.direction.y;
 
-  // checking for collision with food and updating the score
-  if (snake.body[0].x == snake.food.x && snake.body[0].y == snake.food.y) {
-    snake.length++;
-    score += 5;
-    snake.food.x = rand() % GRID_WIDTH;
-    snake.food.y = rand() % GRID_HEIGHT;
-  }
-
   // checking for self and border collisions
   CheckCollisions();
 }
@@ -114,6 +106,7 @@ void DrawGame() {
   ClearBackground(BLACK);
   // displaying game over text and score at game over
   if (gameState == GAME_OVER) {
+
     DrawText("Game Over! Pres Enter to Continue", 0, 0, 30, RAYWHITE);
     DrawText(TextFormat("Final Score : %d", score), 0, 30, 40, RAYWHITE);
   }
@@ -128,6 +121,13 @@ void DrawGame() {
 
 void CheckCollisions() {
   Position head = snake.body[0];
+  // checking for collision with food and updating the score
+  if (head.x == snake.food.x && head.y == snake.food.y) {
+    snake.length++;
+    score += 5;
+    snake.food.x = rand() % GRID_WIDTH;
+    snake.food.y = rand() % GRID_HEIGHT;
+  }
 
   // border collisions
   if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 ||
