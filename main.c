@@ -130,10 +130,16 @@ void CheckCollisions() {
   }
 
   // border collisions
-  if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 ||
-      head.y >= GRID_HEIGHT) {
-    gameState = GAME_OVER;
-    return;
+  /*if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 ||*/
+  /*    head.y >= GRID_HEIGHT) {*/
+  /*  gameState = GAME_OVER;*/
+  /*  return;*/
+  /*}*/
+  if (head.x < 0 || head.x >= GRID_WIDTH) {
+    snake.body[0].x = 0;
+  }
+  if (head.y < 0 || head.y >= GRID_HEIGHT) {
+    snake.body[0].y = 0;
   }
 
   // self collisions
