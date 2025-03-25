@@ -122,10 +122,10 @@ void DrawGame() {
     Rectangle snakeSegment = {snake.body[i].x * GRID_SIZE,
                               snake.body[i].y * GRID_SIZE, GRID_SIZE,
                               GRID_SIZE};
-    DrawRectangleRounded(snakeSegment, 2.5, 6, GREEN);
+    DrawRectangleRounded(snakeSegment, 0.6, 6, GREEN);
     Rectangle foodSegment = {snake.food.x * GRID_SIZE, snake.food.y * GRID_SIZE,
                              GRID_SIZE, GRID_SIZE};
-    DrawRectangleRounded(foodSegment, 2.5, 6, RED);
+    DrawRectangleRounded(foodSegment, 0.6, 6, RED);
   }
 }
 

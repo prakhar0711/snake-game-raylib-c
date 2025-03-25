@@ -1,7 +1,7 @@
 
 CC = cc
 CFLAGS = -Wall -Wextra -Wpedantic
-LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -pg
+LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 TARGET = main
 SRC = main.c
 
