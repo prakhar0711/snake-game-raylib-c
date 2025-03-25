@@ -130,9 +130,19 @@ void DrawGame() {
 }
 
 void CheckCollisions() {
-  Position head = snake.body[0];
+  Position *head = &snake.body[0];
   // checking for collision with food and updating the score
-  if (head.x == snake.food.x && head.y == snake.food.y) {
+  if (head->x < 0) {
+    snake.body[0].x = GRID_WIDTH;
+  } else if (head->x >= GRID_WIDTH) {
+    snake.body[0].x = 0;
+  }
+  if (head->y < 0) {
+    snake.body[0].y = GRID_HEIGHT;
+  } else if (head->y >= GRID_HEIGHT) {
+    snake.body[0].y = 0;
+  }
+  if (head->x == snake.food.x && head->y == snake.food.y) {
     snake.body[snake.length] = snake.body[snake.length - 1];
     snake.length++;
 
@@ -140,7 +150,7 @@ void CheckCollisions() {
     GenerateFood();
   }
   for (int i = 1; i < snake.length; i++) {
-    if (head.x == snake.body[i].x && head.y == snake.body[i].y) {
+    if (head->x == snake.body[i].x && head->y == snake.body[i].y) {
       gameState = GAME_OVER;
       return;
     }
@@ -152,16 +162,6 @@ void CheckCollisions() {
   /*  gameState = GAME_OVER;*/
   /*  return;*/
   /*}*/
-  if (head.x < 0) {
-    snake.body[0].x = GRID_WIDTH;
-  } else if (head.x >= GRID_WIDTH) {
-    snake.body[0].x = 0;
-  }
-  if (head.y < 0) {
-    snake.body[0].y = GRID_HEIGHT;
-  } else if (head.y >= GRID_HEIGHT) {
-    snake.body[0].y = 0;
-  }
 }
 
 void DrawGridLines() {
