@@ -1,9 +1,10 @@
+#include <assert.h>
 #include <raylib.h>
 #include <stdlib.h>
 #include <time.h>
 
 #define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 450
+#define SCREEN_HEIGHT 460
 #define SCREEN_TITLE "Snake Game"
 #define TARGET_FPS 10
 #define GRID_SIZE 20
@@ -15,7 +16,6 @@ typedef struct {
   int x;
   int y;
 } Position;
-
 typedef struct {
   Position body[100];
   int length;
@@ -31,8 +31,13 @@ void InitGame();
 void UpdateGame();
 void DrawGame();
 void CheckCollisions();
+void DrawGridLines();
+void GenerateFood();
 
 int main() {
+
+  assert(SCREEN_WIDTH % 20 == 0);
+  assert(SCREEN_HEIGHT % 20 == 0);
 
   srand(time(NULL));
 
@@ -61,9 +66,7 @@ void InitGame() {
   for (int i = 0; i < snake.length; i++) {
     snake.body[i] = (Position){GRID_WIDTH / 2 - i, GRID_HEIGHT / 2};
   }
-  snake.food.x = rand() % GRID_WIDTH;
-  snake.food.y = rand() % GRID_HEIGHT;
-
+  GenerateFood();
   gameState = PLAYING;
 
   score = 0;
@@ -104,6 +107,7 @@ void UpdateGame() {
 // Draw the snake window and snake and food
 void DrawGame() {
   ClearBackground(BLACK);
+  DrawGridLines();
   // displaying game over text and score at game over
   if (gameState == GAME_OVER) {
 
@@ -112,21 +116,34 @@ void DrawGame() {
   }
 
   // drawing the snake and food
-  for (int i = 0; i < snake.length; i++)
-    DrawRectangle(snake.body[i].x * GRID_SIZE, snake.body[i].y * GRID_SIZE,
-                  GRID_SIZE, GRID_SIZE, GREEN);
-  DrawRectangle(snake.food.x * GRID_SIZE, snake.food.y * GRID_SIZE, GRID_SIZE,
-                GRID_SIZE, RED);
+  for (int i = 0; i < snake.length; i++) {
+    /*DrawRectangle(snake.body[i].x * GRID_SIZE, snake.body[i].y * GRID_SIZE,*/
+    /*GRID_SIZE, GRID_SIZE, GREEN);*/
+    Rectangle snakeSegment = {snake.body[i].x * GRID_SIZE,
+                              snake.body[i].y * GRID_SIZE, GRID_SIZE,
+                              GRID_SIZE};
+    DrawRectangleRounded(snakeSegment, 2.5, 6, GREEN);
+    Rectangle foodSegment = {snake.food.x * GRID_SIZE, snake.food.y * GRID_SIZE,
+                             GRID_SIZE, GRID_SIZE};
+    DrawRectangleRounded(foodSegment, 2.5, 6, RED);
+  }
 }
 
 void CheckCollisions() {
   Position head = snake.body[0];
   // checking for collision with food and updating the score
   if (head.x == snake.food.x && head.y == snake.food.y) {
+    snake.body[snake.length] = snake.body[snake.length - 1];
     snake.length++;
+
     score += 5;
-    snake.food.x = rand() % GRID_WIDTH;
-    snake.food.y = rand() % GRID_HEIGHT;
+    GenerateFood();
+  }
+  for (int i = 1; i < snake.length; i++) {
+    if (head.x == snake.body[i].x && head.y == snake.body[i].y) {
+      gameState = GAME_OVER;
+      return;
+    }
   }
 
   // border collisions
@@ -135,18 +152,39 @@ void CheckCollisions() {
   /*  gameState = GAME_OVER;*/
   /*  return;*/
   /*}*/
-  if (head.x < 0 || head.x >= GRID_WIDTH) {
+  if (head.x < 0) {
+    snake.body[0].x = GRID_WIDTH;
+  } else if (head.x >= GRID_WIDTH) {
     snake.body[0].x = 0;
   }
-  if (head.y < 0 || head.y >= GRID_HEIGHT) {
+  if (head.y < 0) {
+    snake.body[0].y = GRID_HEIGHT;
+  } else if (head.y >= GRID_HEIGHT) {
     snake.body[0].y = 0;
   }
+}
 
-  // self collisions
-  for (int i = 1; i < snake.length; i++) {
-    if (head.x == snake.body[i].x && head.y == snake.body[i].y) {
-      gameState = GAME_OVER;
+void DrawGridLines() {
+  // Drawing vertical grid lines
+  for (int x = 0; x < SCREEN_WIDTH; x += GRID_SIZE) {
+    DrawLine(x, 0, x, SCREEN_HEIGHT, DARKGRAY);
+  }
+
+  // Drawing horizontal grid lines
+  for (int y = 0; y < SCREEN_HEIGHT; y += GRID_SIZE) {
+    DrawLine(0, y, SCREEN_WIDTH, y, DARKGRAY);
+  }
+}
+
+void GenerateFood() {
+  int FoodX = rand() % GRID_WIDTH;
+  int FoodY = rand() % GRID_HEIGHT;
+  for (int i = 0; i < snake.length; i++) {
+    if (snake.body[i].x == FoodX && snake.body[i].y == FoodY) {
+      GenerateFood();
       return;
     }
   }
+  snake.food.x = FoodX;
+  snake.food.y = FoodY;
 }
