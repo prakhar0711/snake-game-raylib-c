@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <raylib.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define SCREEN_WIDTH 800
@@ -17,7 +19,7 @@ typedef struct {
   int y;
 } Position;
 typedef struct {
-  Position body[100];
+  Position *body;
   int length;
   Position direction;
   Position food;
@@ -33,6 +35,7 @@ void DrawGame();
 void CheckCollisions();
 void DrawGridLines();
 void GenerateFood();
+void FreeMemory();
 
 int main() {
 
@@ -50,6 +53,7 @@ int main() {
     if (gameState == PLAYING) {
       UpdateGame();
     } else if (gameState == GAME_OVER && IsKeyPressed(KEY_ENTER)) {
+      FreeMemory();
       InitGame();
     }
     BeginDrawing();
@@ -62,6 +66,12 @@ int main() {
 // handle snake game initialization
 void InitGame() {
   snake.length = 3;
+  snake.body = (Position *)calloc(snake.length, sizeof(Position));
+  if (!snake.body) {
+    perror("Error Allocating Memory To Snake Body");
+    exit(1);
+  }
+  memset(snake.body, 0, sizeof(Position));
   snake.direction = (Position){1, 0};
   for (int i = 0; i < snake.length; i++) {
     snake.body[i] = (Position){GRID_WIDTH / 2 - i, GRID_HEIGHT / 2};
@@ -143,8 +153,15 @@ void CheckCollisions() {
     snake.body[0].y = 0;
   }
   if (head->x == snake.food.x && head->y == snake.food.y) {
-    snake.body[snake.length] = snake.body[snake.length - 1];
     snake.length++;
+    snake.body =
+        (Position *)realloc(snake.body, snake.length * sizeof(Position));
+    if (!snake.body) {
+      perror("Error Allocating Memory To Snake Body");
+      exit(1);
+    }
+
+    snake.body[snake.length - 1] = snake.body[snake.length - 2];
 
     score += 5;
     GenerateFood();
@@ -187,4 +204,11 @@ void GenerateFood() {
   }
   snake.food.x = FoodX;
   snake.food.y = FoodY;
+}
+
+void FreeMemory() {
+  if (snake.body) {
+    free(snake.body);
+    snake.body = NULL;
+  }
 }
